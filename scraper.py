@@ -177,6 +177,12 @@ def main() -> None:
 
     home_html = fetch(BASE_URL)
     listado_html = fetch(SORTEOS_LIST_URL)
+        if listado_html:
+        log(f"DEBUG listado_html length: {len(listado_html)}")
+        log(f"DEBUG contiene '/sorteos/': {listado_html.count('/sorteos/')} veces")
+        log(f"DEBUG snippet: {listado_html[:300]!r}")
+    else:
+        log("DEBUG listado_html es None")
 
     if not home_html and not listado_html:
         log("No se pudo obtener ni la home ni el listado. Se conserva el data.json existente sin cambios.")
