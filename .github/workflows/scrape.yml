@@ -1,0 +1,37 @@
+name: Scrapear resultados Quini 6
+
+on:
+  schedule:
+    # Los sorteos son miércoles y domingo 21:15 hs Argentina (UTC-3) = 00:15 UTC.
+    # Corremos cada 15 min entre las 00:15 y las 01:30 UTC del jueves y lunes
+    # (día siguiente en UTC) para levantar el resultado apenas se publica.
+    - cron: "15,30,45 0 * * 1,4"
+    - cron: "0,15 1 * * 1,4"
+    # Corrida diaria de respaldo por si el sitio publica fuera de horario
+    # o hubo algún corte el día del sorteo.
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4
+
+      - name: Correr scraper
+        run: python scraper.py
+
+      - name: Commitear data.json si cambió
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: actualizar resultados Quini 6"
+          file_pattern: "data/latest.json"
