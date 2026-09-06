@@ -81,28 +81,33 @@ def validar_numeros(nums: list[int]) -> bool:
 
 
 def parsear_modalidades(html: str) -> dict:
-    """Recorre el texto visible en orden y empareja cada encabezado de
-    modalidad (TRADICIONAL, LA SEGUNDA, REVANCHA, SIEMPRE SALE) con la
-    primera línea de 6 números que aparece después. No depende de clases
-    CSS (que pueden cambiar); depende del texto que el sitio le muestra
-    al usuario, que es más estable."""
+    """Ubica cada encabezado de modalidad en el texto de la página y toma
+    los números de 1-2 dígitos que aparecen entre el encabezado y la
+    palabra "Ganadores" (que marca el inicio de la tabla de premios).
+    No depende de que los 6 números estén en una sola línea de texto,
+    porque el sitio puede envolver cada bolilla en su propio elemento."""
     soup = BeautifulSoup(html, "html.parser")
-    lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
+    texto = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
 
     resultado: dict = {}
-    for i, line in enumerate(lines):
-        upper = line.upper()
-        for header_text, key in MODALIDADES.items():
-            if upper == header_text and key not in resultado:
-                for j in range(i + 1, min(i + 4, len(lines))):
-                    m = NUM_LINE_RE.match(lines[j])
-                    if m:
-                        nums = sorted(int(x) for x in m.groups())
-                        if validar_numeros(nums):
-                            resultado[key] = nums
-                        else:
-                            log(f"Números inválidos para {key}: {nums} (descartado)")
-                        break
+    for header_text, key in MODALIDADES.items():
+        start = texto.find(header_text)
+        if start == -1:
+            log(f"No se encontró el encabezado '{header_text}' en la página")
+            continue
+        end = texto.find("Ganadores", start)
+        if end == -1:
+            end = start + 200
+        ventana = texto[start + len(header_text):end]
+        nums = [int(n) for n in re.findall(r"\b\d{1,2}\b", ventana)]
+        if len(nums) < 6:
+            log(f"Solo se encontraron {len(nums)} números para {key} (se esperaban 6), descartado")
+            continue
+        candidato = sorted(nums[:6])
+        if validar_numeros(candidato):
+            resultado[key] = candidato
+        else:
+            log(f"Números inválidos para {key}: {candidato} (descartado)")
     return resultado
 
 
