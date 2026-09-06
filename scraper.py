@@ -154,8 +154,11 @@ def obtener_numeros_historicos(listado_html: str) -> list[int]:
 
 
 def parsear_proximo_sorteo(home_html: str) -> dict | None:
-    m = PROX_SORTEO_RE.search(home_html)
+    soup = BeautifulSoup(home_html, "html.parser")
+    texto = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
+    m = PROX_SORTEO_RE.search(texto)
     if not m:
+        log("No se pudo encontrar el patrón de 'Próximo Sorteo' en el texto de la home")
         return None
     numero, dd, mm, yyyy, pozo = m.groups()
     info = {
