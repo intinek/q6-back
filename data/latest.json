@@ -1,5 +1,9 @@
 {
   "sorteos": [],
-  "proximo_sorteo": null,
-  "last_updated": "2026-09-06T01:11:43.683388+00:00"
+  "proximo_sorteo": {
+    "numero": 3406,
+    "fecha": "2026-09-06",
+    "pozo_estimado": 12000000000
+  },
+  "last_updated": "2026-09-06T01:14:58.938772+00:00"
 }
