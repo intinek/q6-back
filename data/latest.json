@@ -1,1 +1,2070 @@
-{"sorteos": [], "proximo_sorteo": null, "last_updated": null}
+{
+  "sorteos": [
+    {
+      "numero": 3405,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3405",
+      "tradicional": [
+        0,
+        5,
+        10,
+        22,
+        26,
+        45
+      ],
+      "segunda": [
+        2,
+        3,
+        16,
+        22,
+        24,
+        44
+      ],
+      "revancha": [
+        2,
+        7,
+        14,
+        25,
+        34,
+        38
+      ],
+      "siempre_sale": [
+        2,
+        5,
+        8,
+        10,
+        31,
+        38
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1491566026
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 40,
+            "monto": 1044898
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1606,
+            "monto": 7807
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1851144498
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 31,
+            "monto": 1348255
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1448,
+            "monto": 8659
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 6409790928
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 30,
+            "monto": 12490945
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 853,
+            "monto": 234466
+          }
+        ]
+      },
+      "fecha": "2026-09-02"
+    },
+    {
+      "numero": 3404,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3404",
+      "tradicional": [
+        7,
+        14,
+        22,
+        23,
+        40,
+        45
+      ],
+      "segunda": [
+        5,
+        11,
+        17,
+        36,
+        38,
+        40
+      ],
+      "revancha": [
+        0,
+        5,
+        10,
+        20,
+        26,
+        28
+      ],
+      "siempre_sale": [
+        6,
+        13,
+        14,
+        21,
+        36,
+        37
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1237601534
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 52,
+            "monto": 1060632
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 3001,
+            "monto": 5513
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1597180007
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 28,
+            "monto": 1969745
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1851,
+            "monto": 8938
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 5975010922
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 29,
+            "monto": 17052857
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1525,
+            "monto": 131147
+          }
+        ]
+      },
+      "fecha": "2026-08-30"
+    },
+    {
+      "numero": 3403,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3403",
+      "tradicional": [
+        5,
+        9,
+        11,
+        16,
+        23,
+        26
+      ],
+      "segunda": [
+        10,
+        14,
+        25,
+        30,
+        37,
+        39
+      ],
+      "revancha": [
+        8,
+        10,
+        22,
+        30,
+        36,
+        37
+      ],
+      "siempre_sale": [
+        20,
+        23,
+        24,
+        28,
+        35,
+        39
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 86,
+            "monto": 479080
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 3104,
+            "monto": 4000
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1239950578
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 15,
+            "monto": 2746725
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 680,
+            "monto": 18176
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 5363333568
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 369455580
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 930,
+            "monto": 215053
+          }
+        ]
+      },
+      "fecha": "2026-08-26"
+    },
+    {
+      "numero": 3402,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3402",
+      "tradicional": [
+        0,
+        21,
+        24,
+        26,
+        27,
+        42
+      ],
+      "segunda": [
+        19,
+        24,
+        25,
+        27,
+        29,
+        36
+      ],
+      "revancha": [
+        2,
+        9,
+        21,
+        29,
+        36,
+        39
+      ],
+      "siempre_sale": [
+        1,
+        4,
+        5,
+        20,
+        37,
+        43
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 3,
+            "monto": 18299256
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 613,
+            "monto": 26866
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 15,
+            "monto": 3659851.2
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1207,
+            "monto": 13644
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4935276173
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 9,
+            "monto": 54681336
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 134,
+            "monto": 1492537
+          }
+        ]
+      },
+      "fecha": "2026-08-23"
+    },
+    {
+      "numero": 3401,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3401",
+      "tradicional": [
+        1,
+        2,
+        6,
+        10,
+        17,
+        25
+      ],
+      "segunda": [
+        3,
+        10,
+        12,
+        16,
+        26,
+        33
+      ],
+      "revancha": [
+        2,
+        12,
+        14,
+        24,
+        29,
+        40
+      ],
+      "siempre_sale": [
+        7,
+        21,
+        27,
+        30,
+        32,
+        37
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 71,
+            "monto": 550212
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2845,
+            "monto": 4119
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 47,
+            "monto": 831171
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2258,
+            "monto": 5190
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4324127587
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 30,
+            "monto": 11676992
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 961,
+            "monto": 208116
+          }
+        ]
+      },
+      "fecha": "2026-08-19"
+    },
+    {
+      "numero": 3400,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3400",
+      "tradicional": [
+        2,
+        9,
+        15,
+        18,
+        28,
+        31
+      ],
+      "segunda": [
+        2,
+        18,
+        28,
+        34,
+        43,
+        44
+      ],
+      "revancha": [
+        12,
+        16,
+        29,
+        30,
+        37,
+        43
+      ],
+      "siempre_sale": [
+        2,
+        6,
+        9,
+        10,
+        32,
+        35
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 7651790722
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 74,
+            "monto": 771296
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 3382,
+            "monto": 5062
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 18,
+            "monto": 3170886
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 830,
+            "monto": 20629.86
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3924239184
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 55,
+            "monto": 9288885
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 274,
+            "monto": 729927
+          }
+        ]
+      },
+      "fecha": "2026-08-16"
+    },
+    {
+      "numero": 3399,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3399",
+      "tradicional": [
+        23,
+        24,
+        25,
+        30,
+        31,
+        44
+      ],
+      "segunda": [
+        4,
+        8,
+        16,
+        20,
+        24,
+        36
+      ],
+      "revancha": [
+        3,
+        7,
+        22,
+        24,
+        25,
+        42
+      ],
+      "siempre_sale": [
+        13,
+        21,
+        23,
+        26,
+        32,
+        33
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 7282064412
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 9,
+            "monto": 4731004
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 527,
+            "monto": 24238
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 107,
+            "monto": 397943
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2336,
+            "monto": 5468
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3291719990
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 381004236
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 599,
+            "monto": 333889
+          }
+        ]
+      },
+      "fecha": "2026-08-12"
+    },
+    {
+      "numero": 3398,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3398",
+      "tradicional": [
+        6,
+        9,
+        10,
+        18,
+        22,
+        31
+      ],
+      "segunda": [
+        11,
+        13,
+        23,
+        25,
+        26,
+        30
+      ],
+      "revancha": [
+        1,
+        3,
+        18,
+        23,
+        24,
+        31
+      ],
+      "siempre_sale": [
+        1,
+        9,
+        16,
+        18,
+        30,
+        40
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 7064308818
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 232,
+            "monto": null
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 7890,
+            "monto": 7000
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 4350196620
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 89,
+            "monto": 1288186.97
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 4672,
+            "monto": 7365.86
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2919532810
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 44,
+            "monto": 68181.82
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 4356,
+            "monto": 45913.68
+          }
+        ]
+      },
+      "fecha": "2026-08-09"
+    },
+    {
+      "numero": 3397,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3397",
+      "tradicional": [
+        3,
+        4,
+        14,
+        17,
+        19,
+        35
+      ],
+      "segunda": [
+        5,
+        22,
+        28,
+        31,
+        32,
+        41
+      ],
+      "revancha": [
+        8,
+        11,
+        14,
+        29,
+        33,
+        44
+      ],
+      "siempre_sale": [
+        5,
+        10,
+        20,
+        24,
+        25,
+        38
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 6421249420
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 29,
+            "monto": 1557703
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2099,
+            "monto": 6456
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3578841428
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 25,
+            "monto": 1806936
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1782,
+            "monto": 7604
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1598811221
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 405070632
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 4306,
+            "monto": 46446
+          }
+        ]
+      },
+      "fecha": "2026-08-05"
+    },
+    {
+      "numero": 3396,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3396",
+      "tradicional": [
+        0,
+        12,
+        23,
+        29,
+        43,
+        45
+      ],
+      "segunda": [
+        1,
+        13,
+        18,
+        29,
+        31,
+        44
+      ],
+      "revancha": [
+        2,
+        3,
+        19,
+        20,
+        23,
+        25
+      ],
+      "siempre_sale": [
+        0,
+        1,
+        9,
+        22,
+        27,
+        29
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 6015882600
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 6,
+            "monto": 9319728
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 814,
+            "monto": 20608
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3301770402
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 27,
+            "monto": 2071050
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1418,
+            "monto": 11830
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1124700206
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 22,
+            "monto": 22785020
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 869,
+            "monto": 230149.6
+          }
+        ]
+      },
+      "fecha": "2026-08-02"
+    },
+    {
+      "numero": 3395,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3395",
+      "tradicional": [
+        0,
+        2,
+        27,
+        34,
+        37,
+        38
+      ],
+      "segunda": [
+        0,
+        1,
+        3,
+        6,
+        10,
+        35
+      ],
+      "revancha": [
+        6,
+        24,
+        28,
+        32,
+        39,
+        42
+      ],
+      "siempre_sale": [
+        15,
+        17,
+        30,
+        35,
+        36,
+        39
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 5654021411
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 10,
+            "monto": 4223912
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 363,
+            "monto": 34908
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2939909212
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 14,
+            "monto": 3017080.29
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1079,
+            "monto": 11743
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 800000000
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 3,
+            "monto": 126157176
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 367,
+            "monto": 544959
+          }
+        ]
+      },
+      "fecha": "2026-07-29"
+    },
+    {
+      "numero": 3394,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3394",
+      "tradicional": [
+        8,
+        9,
+        12,
+        21,
+        28,
+        37
+      ],
+      "segunda": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        22
+      ],
+      "revancha": [
+        3,
+        5,
+        8,
+        22,
+        25,
+        45
+      ],
+      "siempre_sale": [
+        6,
+        10,
+        13,
+        40,
+        42,
+        43
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 5394447878
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 51,
+            "monto": 1011213.88
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2240,
+            "monto": 6906
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2680335680
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 144,
+            "monto": 358138.25
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2151,
+            "monto": 7192.73
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 1038037766
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 16,
+            "monto": 28894401
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 522,
+            "monto": 383141.76
+          }
+        ]
+      },
+      "fecha": "2026-07-26"
+    },
+    {
+      "numero": 3393,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3393",
+      "tradicional": [
+        0,
+        5,
+        10,
+        36,
+        41,
+        42
+      ],
+      "segunda": [
+        6,
+        24,
+        31,
+        34,
+        42,
+        43
+      ],
+      "revancha": [
+        1,
+        8,
+        18,
+        30,
+        38,
+        43
+      ],
+      "siempre_sale": [
+        2,
+        7,
+        20,
+        23,
+        44,
+        45
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 5060737231
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 8,
+            "monto": 4873698
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 604,
+            "monto": 19365
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2346625033
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 9,
+            "monto": 4332176
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 611,
+            "monto": 19143
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 800000000
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 14,
+            "monto": 24971212
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 360,
+            "monto": 555555
+          }
+        ]
+      },
+      "fecha": "2026-07-22"
+    },
+    {
+      "numero": 3392,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3392",
+      "tradicional": [
+        5,
+        17,
+        27,
+        28,
+        31,
+        45
+      ],
+      "segunda": [
+        8,
+        21,
+        23,
+        33,
+        36,
+        41
+      ],
+      "revancha": [
+        4,
+        10,
+        14,
+        17,
+        25,
+        32
+      ],
+      "siempre_sale": [
+        4,
+        14,
+        18,
+        19,
+        28,
+        29
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4824893380
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 20,
+            "monto": 2648802.6
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1900,
+            "monto": 8364.64
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2110781182
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 35,
+            "monto": 1513601
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1774,
+            "monto": 8958
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 4,
+            "monto": 507001345
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 53,
+            "monto": 8963460
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 3341,
+            "monto": 59862.32
+          }
+        ]
+      },
+      "fecha": "2026-07-19"
+    },
+    {
+      "numero": 3391,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3391",
+      "tradicional": [
+        19,
+        22,
+        25,
+        30,
+        37,
+        42
+      ],
+      "segunda": [
+        1,
+        5,
+        16,
+        21,
+        33,
+        34
+      ],
+      "revancha": [
+        4,
+        18,
+        22,
+        31,
+        34,
+        39
+      ],
+      "siempre_sale": [
+        3,
+        21,
+        31,
+        34,
+        37,
+        42
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4480780248
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 8,
+            "monto": 4771291
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 814,
+            "monto": 14067
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1766668050
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 26,
+            "monto": 1468089
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1066,
+            "monto": 10742
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1438984742
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 3,
+            "monto": 114102540
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 437636
+          }
+        ]
+      },
+      "fecha": "2026-07-16"
+    },
+    {
+      "numero": 3390,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3390",
+      "tradicional": [
+        1,
+        3,
+        16,
+        24,
+        25,
+        31
+      ],
+      "segunda": [
+        2,
+        3,
+        20,
+        31,
+        36,
+        43
+      ],
+      "revancha": [
+        11,
+        18,
+        23,
+        31,
+        38,
+        41
+      ],
+      "siempre_sale": [
+        2,
+        10,
+        22,
+        23,
+        32,
+        40
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4248956149
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 54,
+            "monto": 935667.33
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2044,
+            "monto": 7415
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1534843951
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 17,
+            "monto": 2972119.76
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 724,
+            "monto": 20936
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1042171920
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 71,
+            "monto": 6382444
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 496,
+            "monto": 403225
+          }
+        ]
+      },
+      "fecha": "2026-07-12"
+    },
+    {
+      "numero": 3389,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3389",
+      "tradicional": [
+        3,
+        5,
+        27,
+        37,
+        40,
+        43
+      ],
+      "segunda": [
+        5,
+        22,
+        24,
+        26,
+        28,
+        32
+      ],
+      "revancha": [
+        5,
+        15,
+        19,
+        29,
+        39,
+        44
+      ],
+      "siempre_sale": [
+        4,
+        15,
+        17,
+        20,
+        40,
+        42
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4019561774
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 10,
+            "monto": 4050352
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 685,
+            "monto": 17738
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1209514169
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 27,
+            "monto": 1500130
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1865,
+            "monto": 6515
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 800000000
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 363300228
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 503,
+            "monto": 397614
+          }
+        ]
+      },
+      "fecha": "2026-07-08"
+    },
+    {
+      "numero": 3388,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3388",
+      "tradicional": [
+        27,
+        29,
+        32,
+        33,
+        37,
+        39
+      ],
+      "segunda": [
+        5,
+        14,
+        22,
+        23,
+        36,
+        45
+      ],
+      "revancha": [
+        1,
+        3,
+        7,
+        9,
+        25,
+        29
+      ],
+      "siempre_sale": [
+        1,
+        10,
+        15,
+        22,
+        36,
+        37
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3676407386
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 13,
+            "monto": 3989639
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 783,
+            "monto": 19871
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 66,
+            "monto": 785838
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2573,
+            "monto": 6047.26
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1,
+            "monto": 5450960891
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 34,
+            "monto": 13682662.94
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 2644,
+            "monto": 75642
+          }
+        ]
+      },
+      "fecha": "2026-07-05"
+    },
+    {
+      "numero": 3387,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3387",
+      "tradicional": [
+        1,
+        8,
+        15,
+        28,
+        35,
+        44
+      ],
+      "segunda": [
+        17,
+        20,
+        26,
+        35,
+        37,
+        40
+      ],
+      "revancha": [
+        17,
+        21,
+        25,
+        34,
+        35,
+        44
+      ],
+      "siempre_sale": [
+        4,
+        8,
+        19,
+        22,
+        30,
+        44
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3342343486
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 27,
+            "monto": 1534034.67
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1067,
+            "monto": 11645
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 8,
+            "monto": 5177367
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 795,
+            "monto": 15629
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4878908521
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 33,
+            "monto": 11260040
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 155,
+            "monto": 1290322
+          }
+        ]
+      },
+      "fecha": "2026-07-01"
+    },
+    {
+      "numero": 3386,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3386",
+      "tradicional": [
+        0,
+        16,
+        20,
+        30,
+        38,
+        43
+      ],
+      "segunda": [
+        7,
+        11,
+        21,
+        31,
+        38,
+        41
+      ],
+      "revancha": [
+        1,
+        3,
+        10,
+        12,
+        15,
+        23
+      ],
+      "siempre_sale": [
+        14,
+        15,
+        26,
+        27,
+        28,
+        32
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3089999682
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 10,
+            "monto": 5369821
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 467,
+            "monto": 34495
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 44,
+            "monto": 1220413
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2069,
+            "monto": 7786
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 4446770756
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 34,
+            "monto": 14167881
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1695,
+            "monto": 117994
+          }
+        ]
+      },
+      "fecha": "2026-06-28"
+    }
+  ],
+  "proximo_sorteo": {
+    "numero": 3406,
+    "fecha": "2026-09-06",
+    "pozo_estimado": 12000000000
+  },
+  "last_updated": "2026-09-06T02:11:24.570792+00:00"
+}
