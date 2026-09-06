@@ -75,7 +75,32 @@ def fetch(url: str) -> str | None:
         log(f"ERROR fetching {url}: {e}")
         return None
 
+def _parse_entero(texto: str) -> int | None:
+    texto = texto.strip().replace(".", "").replace(",", "")
+    try:
+        return int(texto)
+    except ValueError:
+        return None
 
+
+def _parse_monto(texto: str):
+    """Convierte un monto en formato argentino a número. Si tiene coma
+    decimal ('12.490.945,20') devuelve float; si no ('5.654.021.411')
+    devuelve int, para no perder precisión en pozos grandes."""
+    texto = texto.strip()
+    if not texto:
+        return None
+    if "," in texto:
+        texto = texto.replace(".", "").replace(",", ".")
+        try:
+            return float(texto)
+        except ValueError:
+            return None
+    texto = texto.replace(".", "")
+    try:
+        return int(texto)
+    except ValueError:
+        return None
 def validar_numeros(nums: list[int]) -> bool:
     return len(nums) == 6 and len(set(nums)) == 6 and all(0 <= n <= 45 for n in nums)
 
@@ -110,7 +135,42 @@ def parsear_modalidades(html: str) -> dict:
             log(f"Números inválidos para {key}: {candidato} (descartado)")
     return resultado
 
+def parsear_premios(html: str) -> dict:
+    """Para cada modalidad (y el pozo extra), busca su encabezado y toma
+    la primera tabla que aparece después, extrayendo aciertos/ganadores/
+    monto de cada fila."""
+    soup = BeautifulSoup(html, "html.parser")
+    headers = {**MODALIDADES, "POZO EXTRA": "pozo_extra"}
+    resultado: dict = {}
 
+    for tag in soup.find_all(["h1", "h2", "h3", "h4"]):
+        texto_header = tag.get_text(strip=True).upper()
+        if texto_header not in headers or headers[texto_header] in resultado:
+            continue
+        key = headers[texto_header]
+        tabla = tag.find_next("table")
+        if not tabla:
+            continue
+        filas = []
+        for fila in tabla.find_all("tr")[1:]:
+            celdas = [c.get_text(strip=True) for c in fila.find_all(["td", "th"])]
+            if len(celdas) < 3:
+                continue
+            aciertos_txt, ganadores_txt, monto_txt = celdas[0], celdas[1], celdas[2]
+            try:
+                aciertos = int(aciertos_txt)
+            except ValueError:
+                continue
+            es_vacante = ganadores_txt.strip().lower() == "vacante"
+            filas.append({
+                "aciertos": aciertos,
+                "vacante": es_vacante,
+                "ganadores": None if es_vacante else _parse_entero(ganadores_txt),
+                "monto": _parse_monto(monto_txt),
+            })
+        if filas:
+            resultado[key] = filas
+    return resultado
 def parsear_sorteo_detalle(numero: int) -> dict | None:
     url = f"{BASE_URL}sorteos/{numero}"
     html = fetch(url)
@@ -121,7 +181,7 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     if "tradicional" not in modalidades:
         log(f"Sorteo {numero}: no se pudo validar Tradicional, se descarta la página entera")
         return None
-
+    premios = parsear_premios(html)
     fecha = None
     m = FECHA_NUMERO_RE.search(html)
     if m:
@@ -137,6 +197,7 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
         "numero": numero,
         "fuente_url": url,
         **modalidades,
+        "premios": premios,
     }
     if fecha:
         resultado["fecha"] = fecha
