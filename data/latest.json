@@ -1,6 +1,109 @@
 {
   "sorteos": [
     {
+      "numero": 3406,
+      "fuente_url": "https://numerosganadores.com.ar/sorteos/3406",
+      "tradicional": [
+        2,
+        16,
+        20,
+        21,
+        22,
+        38
+      ],
+      "segunda": [
+        12,
+        16,
+        23,
+        26,
+        28,
+        34
+      ],
+      "revancha": [
+        0,
+        3,
+        22,
+        32,
+        37,
+        41
+      ],
+      "siempre_sale": [
+        0,
+        3,
+        4,
+        13,
+        23,
+        42
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1855130508
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 27,
+            "monto": 2078421.33
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1628,
+            "monto": 10341.04
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2214708980
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 23,
+            "monto": 2439885.91
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1513,
+            "monto": 11127.04
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 7032378571
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 16,
+            "monto": 31448574
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 718,
+            "monto": 278551.53
+          }
+        ]
+      },
+      "fecha": "2026-09-06"
+    },
+    {
       "numero": 3405,
       "fuente_url": "https://numerosganadores.com.ar/sorteos/3405",
       "tradicional": [
@@ -2062,9 +2165,9 @@
     }
   ],
   "proximo_sorteo": {
-    "numero": 3406,
-    "fecha": "2026-09-06",
-    "pozo_estimado": 12000000000
+    "numero": 3407,
+    "fecha": "2026-09-09",
+    "pozo_estimado": 12860000000
   },
-  "last_updated": "2026-09-06T14:40:22.274281+00:00"
+  "last_updated": "2026-09-07T01:33:47.294954+00:00"
 }
