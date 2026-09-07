@@ -3,13 +3,16 @@ name: Scrapear resultados Quini 6
 on:
   schedule:
     # Los sorteos son miércoles y domingo 21:15 hs Argentina (UTC-3) = 00:15 UTC.
-    # Corremos cada 15 min entre las 00:15 y las 01:30 UTC del jueves y lunes
-    # (día siguiente en UTC) para levantar el resultado apenas se publica.
-    - cron: "15,30,45 0 * * 1,4"
-    - cron: "0,15 1 * * 1,4"
+    # Uso minutos "no redondos" (07, 22, 37, 52) porque GitHub prioriza los
+    # cron jobs en punto (:00, :15, :30, :45) -son los más usados en todo el
+    # mundo- y en horas de mucha carga global puede saltear directamente los
+    # que caen justo ahí. Cubro 2 horas después del sorteo por las dudas.
+    - cron: "7,22,37,52 0 * * 1,4"
+    - cron: "7,22,37,52 1 * * 1,4"
+    - cron: "7,22 2 * * 1,4"
     # Corrida diaria de respaldo por si el sitio publica fuera de horario
     # o hubo algún corte el día del sorteo.
-    - cron: "0 12 * * *"
+    - cron: "13 12 * * *"
   workflow_dispatch: {}
 
 jobs:
