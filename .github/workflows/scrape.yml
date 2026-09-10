@@ -2,24 +2,40 @@ name: Scrapear resultados Quini 6
 
 on:
   schedule:
-    # Los sorteos son miércoles y domingo 21:15 hs Argentina (UTC-3) = 00:15 UTC.
-    # Uso minutos "no redondos" (07, 22, 37, 52) porque GitHub prioriza los
-    # cron jobs en punto (:00, :15, :30, :45) -son los más usados en todo el
-    # mundo- y en horas de mucha carga global puede saltear directamente los
-    # que caen justo ahí. Cubro 2 horas después del sorteo por las dudas.
-    - cron: "7,22,37,52 1 * * 4"
-    - cron: "7,22,37,52 1 * * 1"
-    - cron: "0 3 * * 4"
-    # Corrida diaria de respaldo por si el sitio publica fuera de horario
-    # o hubo algún corte el día del sorteo.
-    - cron: "13 12 * * *"
-  workflow_dispatch: {}
+    # Sorteos: domingo y miércoles 21:15 ART.
+    # Primeros intentos: 21:22, 21:37 y 21:52 ART.
+    - cron: "22,37,52 21 * * 0,3"
+
+    # Segunda hora de intentos: 22:07, 22:22, 22:37 y 22:52 ART.
+    - cron: "7,22,37,52 22 * * 0,3"
+
+    # Último intento nocturno: 23:22 ART, ~2 horas después del sorteo.
+    - cron: "22 23 * * 0,3"
+
+    # Backup diario por si el resultado se publica tarde o falló algo.
+    - cron: "13 9 * * *"
+
+  workflow_dispatch:
+
+env:
+  # GitHub interpreta los cron en hora argentina.
+  CRON_TZ: America/Argentina/Buenos_Aires
+
+  # El runner queda en hora argentina, útil si el scraper usa fechas locales.
+  TZ: America/Argentina/Buenos_Aires
+
+concurrency:
+  group: scrape-quini-6
+  cancel-in-progress: false
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,12 +44,14 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependencias
-        run: pip install requests beautifulsoup4
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
       - name: Correr scraper
         run: python scraper.py
 
-      - name: Commitear data.json si cambió
+      - name: Commitear data/latest.json si cambió
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: actualizar resultados Quini 6"
