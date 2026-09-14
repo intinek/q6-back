@@ -2,26 +2,27 @@ name: Scrapear resultados Quini 6
 
 on:
   schedule:
-    # Sorteos: domingo y miércoles 21:15 ART.
-    # Primeros intentos: 21:22, 21:37 y 21:52 ART.
-    - cron: "22,37,52 21 * * 0,3"
 
-    # Segunda hora de intentos: 22:07, 22:22, 22:37 y 22:52 ART.
-    - cron: "7,22,37,52 22 * * 0,3"
+    # Primeros intentos: 21:22, 21:37, 21:52 hs ART = 00:22, 00:37, 00:52 UTC
+    # del día siguiente (domingo/miércoles a la noche -> lunes/jueves UTC).
+    - cron: "22,37,52 0 * * 1,4"
 
-    # Último intento nocturno: 23:22 ART, ~2 horas después del sorteo.
-    - cron: "22 23 * * 0,3"
+    # Segunda hora de intentos: 22:07, 22:22, 22:37, 22:52 hs ART = 01:07, 01:22, 01:37, 01:52 UTC
+    - cron: "7,22,37,52 1 * * 1,4"
 
-    # Backup diario por si el resultado se publica tarde o falló algo.
-    - cron: "13 9 * * *"
+    # Último intento nocturno: 23:22 hs ART = 02:22 UTC
+    - cron: "22 2 * * 1,4"
+
+    # Backup diario 09:13 hs ART = 12:13 UTC, por si se publica tarde o falló algo.
+    - cron: "13 12 * * *"
 
   workflow_dispatch:
 
 env:
-  # GitHub interpreta los cron en hora argentina.
-  CRON_TZ: America/Argentina/Buenos_Aires
-
-  # El runner queda en hora argentina, útil si el scraper usa fechas locales.
+  # Esto SÍ tiene efecto (a diferencia de CRON_TZ arriba): hace que el
+  # runner tenga la hora local de Argentina DURANTE la ejecución del job,
+  # útil si el scraper llegara a usar la hora local del sistema. No afecta
+  # en nada el horario de disparo del "schedule" de arriba.
   TZ: America/Argentina/Buenos_Aires
 
 concurrency:
@@ -46,9 +47,10 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4
+          pip install requests beautifulsoup4 google-auth
 
       - name: Correr scraper
+        id: scrape
         run: python scraper.py
 
       - name: Commitear data/latest.json si cambió
@@ -56,3 +58,10 @@ jobs:
         with:
           commit_message: "chore: actualizar resultados Quini 6"
           file_pattern: "data/latest.json"
+
+      - name: Enviar notificación push (solo si hay sorteo nuevo)
+        if: steps.scrape.outputs.nuevo_sorteo != ''
+        env:
+          FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}
+          NUEVO_SORTEO: ${{ steps.scrape.outputs.nuevo_sorteo }}
+        run: python notify_fcm.py
