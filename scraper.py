@@ -4,6 +4,10 @@ encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
 data.json solo se actualiza con sorteos que pasaron la validación; un
 fallo de scraping nunca sobreescribe un dato bueno que ya estaba guardado.
+
+Pensado para correr desde GitHub Actions dos veces por semana (miércoles y
+domingo, después de las 21:15 hs de Argentina) más una corrida diaria de
+respaldo.
 """
 
 import json
@@ -127,6 +131,36 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     return resultado
 
 
+def parsear_ultimo_sorteo() -> dict | None:
+    """La página /ultimosorteo se actualiza al instante apenas termina el
+    sorteo (a diferencia de /sorteos, que puede tardar en sumar el link al
+    número más nuevo). La usamos como fuente principal para el sorteo más
+    reciente, y /sorteos queda solo para completar el historial viejo."""
+    url = f"{BASE_URL}ultimosorteo"
+    html = fetch(url)
+    if not html:
+        return None
+
+    m = FECHA_NUMERO_RE.search(html)
+    if not m:
+        log("No se pudo leer número/fecha en /ultimosorteo")
+        return None
+    dd, mm, yyyy, numero = m.groups()
+    numero = int(numero)
+
+    modalidades = parsear_modalidades(html)
+    if "tradicional" not in modalidades:
+        log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
+        return None
+
+    return {
+        "numero": numero,
+        "fecha": f"{yyyy}-{mm}-{dd}",
+        "fuente_url": url,
+        **modalidades,
+    }
+
+
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
     soup = BeautifulSoup(listado_html, "html.parser")
     numeros = []
@@ -173,6 +207,15 @@ def main() -> None:
 
     nuevos = 0
 
+    # 1) Fuente principal: /ultimosorteo, que se actualiza al instante.
+    ultimo = parsear_ultimo_sorteo()
+    if ultimo and ultimo["numero"] not in existentes:
+        existentes[ultimo["numero"]] = ultimo
+        nuevos += 1
+        log(f"Sorteo {ultimo['numero']} agregado desde /ultimosorteo")
+
+    # 2) Backfill de historial viejo desde /sorteos (puede ir un poco atrás
+    #    del más reciente, pero para el historial no importa la demora).
     numeros_a_revisar = set()
     if listado_html:
         numeros_a_revisar.update(obtener_numeros_historicos(listado_html))
