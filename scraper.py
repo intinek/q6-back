@@ -1,4 +1,12 @@
 """
+Scraper de resultados del Quini 6.
+
+Fuente: https://numerosganadores.com.ar/ (sitio no oficial de terceros).
+Antes apuntaba a quini-6-resultados.com.ar, pero ese sitio devuelve 403
+Forbidden a los runners de GitHub Actions (probablemente bloquea rangos de
+IP de datacenter). Esta fuente tiene URLs más simples y no mostró ese
+bloqueo al probarla.
+
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
@@ -47,8 +55,11 @@ NUM_LINE_RE = re.compile(
     r"^(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})$"
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
+# \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
+# sitio use punto y coma, coma, un salto de línea, o cualquier separador que
+# no sea un dígito, sin que la regex se rompa por una diferencia mínima.
 FECHA_NUMERO_RE = re.compile(
-    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4});\s*N[uú]mero de sorteo:\s*(\d+)"
+    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4})\D*?N[uú]mero de sorteo:\s*(\d+)"
 )
 PROX_SORTEO_RE = re.compile(
     r"Sorteo (\d+)\.\s*(\d{1,2})/(\d{1,2})/(\d{4})\.\s*Pozo Estimado:\s*\$?\s*([\d\.]+)"
@@ -99,6 +110,13 @@ def parsear_modalidades(html: str) -> dict:
     return resultado
 
 
+def extraer_texto(html: str) -> str:
+    """Texto visible de la página, sin tags ni entidades HTML — mucho más
+    confiable para buscar un patrón de texto que el HTML crudo, que puede
+    tener el texto partido entre tags o con entidades sin decodificar."""
+    return BeautifulSoup(html, "html.parser").get_text(" ")
+
+
 def parsear_sorteo_detalle(numero: int) -> dict | None:
     url = f"{BASE_URL}sorteos/{numero}"
     html = fetch(url)
@@ -111,7 +129,7 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
         return None
 
     fecha = None
-    m = FECHA_NUMERO_RE.search(html)
+    m = FECHA_NUMERO_RE.search(extraer_texto(html))
     if m:
         dd, mm, yyyy, num_confirmado = m.groups()
         if int(num_confirmado) != numero:
@@ -141,7 +159,7 @@ def parsear_ultimo_sorteo() -> dict | None:
     if not html:
         return None
 
-    m = FECHA_NUMERO_RE.search(html)
+    m = FECHA_NUMERO_RE.search(extraer_texto(html))
     if not m:
         log("No se pudo leer número/fecha en /ultimosorteo")
         return None
