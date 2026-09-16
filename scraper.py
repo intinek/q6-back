@@ -152,9 +152,23 @@ def parsear_ultimo_sorteo() -> dict | None:
     url = f"{BASE_URL}ultimosorteo"
     html = fetch(url)
     if not html:
+        log("DEBUG: fetch() de /ultimosorteo devolvió None (falló la petición)")
         return None
 
-    m = FECHA_NUMERO_RE.search(extraer_texto(html))
+    texto = extraer_texto(html)
+
+    # --- DEBUG temporal: sacar esto una vez que encontremos el problema ---
+    log(f"DEBUG: /ultimosorteo devolvió {len(html)} bytes de HTML, {len(texto)} caracteres de texto")
+    log(f"DEBUG: 'Fecha del sorteo' está en el texto: {'Fecha del sorteo' in texto}")
+    log(f"DEBUG: 'Fecha del sorteo' está en el HTML crudo: {'Fecha del sorteo' in html}")
+    idx = texto.find("Fecha del sorteo")
+    if idx >= 0:
+        log(f"DEBUG: fragmento de texto alrededor de 'Fecha del sorteo': {texto[idx:idx+120]!r}")
+    else:
+        log(f"DEBUG: primeros 300 caracteres del texto extraído: {texto[:300]!r}")
+    # --- fin debug temporal ---
+
+    m = FECHA_NUMERO_RE.search(texto)
     if not m:
         log("No se pudo leer número/fecha en /ultimosorteo")
         return None
