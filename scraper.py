@@ -1,7 +1,4 @@
 """
-Scraper de resultados del Quini 6.
-
-
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
@@ -32,7 +29,7 @@ HEADERS = {
                   "(KHTML, like Gecko) Chrome/128.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip, deflate",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
 }
@@ -152,22 +149,9 @@ def parsear_ultimo_sorteo() -> dict | None:
     url = f"{BASE_URL}ultimosorteo"
     html = fetch(url)
     if not html:
-        log("DEBUG: fetch() de /ultimosorteo devolvió None (falló la petición)")
         return None
 
     texto = extraer_texto(html)
-
-    # --- DEBUG temporal: sacar esto una vez que encontremos el problema ---
-    log(f"DEBUG: /ultimosorteo devolvió {len(html)} bytes de HTML, {len(texto)} caracteres de texto")
-    log(f"DEBUG: 'Fecha del sorteo' está en el texto: {'Fecha del sorteo' in texto}")
-    log(f"DEBUG: 'Fecha del sorteo' está en el HTML crudo: {'Fecha del sorteo' in html}")
-    idx = texto.find("Fecha del sorteo")
-    if idx >= 0:
-        log(f"DEBUG: fragmento de texto alrededor de 'Fecha del sorteo': {texto[idx:idx+120]!r}")
-    else:
-        log(f"DEBUG: primeros 300 caracteres del texto extraído: {texto[:300]!r}")
-    # --- fin debug temporal ---
-
     m = FECHA_NUMERO_RE.search(texto)
     if not m:
         log("No se pudo leer número/fecha en /ultimosorteo")
