@@ -1,6 +1,43 @@
 {
   "sorteos": [
     {
+      "numero": 3408,
+      "fecha": "2026-09-13",
+      "fuente_url": "https://numerosganadores.com.ar/ultimosorteo",
+      "tradicional": [
+        5,
+        8,
+        22,
+        29,
+        34,
+        37
+      ],
+      "segunda": [
+        4,
+        20,
+        25,
+        31,
+        39,
+        42
+      ],
+      "revancha": [
+        16,
+        19,
+        21,
+        35,
+        38,
+        42
+      ],
+      "siempre_sale": [
+        11,
+        15,
+        33,
+        36,
+        43,
+        44
+      ]
+    },
+    {
       "numero": 3407,
       "fuente_url": "https://numerosganadores.com.ar/sorteos/3407",
       "tradicional": [
@@ -2272,5 +2309,5 @@
     "fecha": "2026-09-16",
     "pozo_estimado": 15250000000
   },
-  "last_updated": "2026-09-16T02:52:00.545756+00:00"
+  "last_updated": "2026-09-16T03:00:28.148729+00:00"
 }
