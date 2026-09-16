@@ -1,4 +1,12 @@
 """
+Scraper de resultados del Quini 6.
+
+Fuente: https://numerosganadores.com.ar/ (sitio no oficial de terceros).
+Antes apuntaba a quini-6-resultados.com.ar, pero ese sitio devuelve 403
+Forbidden a los runners de GitHub Actions (probablemente bloquea rangos de
+IP de datacenter). Esta fuente tiene URLs más simples y no mostró ese
+bloqueo al probarla.
+
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
@@ -29,7 +37,7 @@ HEADERS = {
                   "(KHTML, like Gecko) Chrome/128.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip, deflate",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
 }
@@ -47,8 +55,11 @@ NUM_LINE_RE = re.compile(
     r"^(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})$"
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
+# \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
+# sitio use punto y coma, coma, un salto de línea, o cualquier separador que
+# no sea un dígito, sin que la regex se rompa por una diferencia mínima.
 FECHA_NUMERO_RE = re.compile(
-    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4});\s*N[uú]mero de sorteo:\s*(\d+)"
+    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4})\D*?N[uú]mero de sorteo:\s*(\d+)"
 )
 PROX_SORTEO_RE = re.compile(
     r"Sorteo (\d+)\.\s*(\d{1,2})/(\d{1,2})/(\d{4})\.\s*Pozo Estimado:\s*\$?\s*([\d\.]+)"
@@ -99,6 +110,13 @@ def parsear_modalidades(html: str) -> dict:
     return resultado
 
 
+def extraer_texto(html: str) -> str:
+    """Texto visible de la página, sin tags ni entidades HTML — mucho más
+    confiable para buscar un patrón de texto que el HTML crudo, que puede
+    tener el texto partido entre tags o con entidades sin decodificar."""
+    return BeautifulSoup(html, "html.parser").get_text(" ")
+
+
 def parsear_sorteo_detalle(numero: int) -> dict | None:
     url = f"{BASE_URL}sorteos/{numero}"
     html = fetch(url)
@@ -111,7 +129,7 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
         return None
 
     fecha = None
-    m = FECHA_NUMERO_RE.search(html)
+    m = FECHA_NUMERO_RE.search(extraer_texto(html))
     if m:
         dd, mm, yyyy, num_confirmado = m.groups()
         if int(num_confirmado) != numero:
@@ -129,6 +147,37 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     if fecha:
         resultado["fecha"] = fecha
     return resultado
+
+
+def parsear_ultimo_sorteo() -> dict | None:
+    """La página /ultimosorteo se actualiza al instante apenas termina el
+    sorteo (a diferencia de /sorteos, que puede tardar en sumar el link al
+    número más nuevo). La usamos como fuente principal para el sorteo más
+    reciente, y /sorteos queda solo para completar el historial viejo."""
+    url = f"{BASE_URL}ultimosorteo"
+    html = fetch(url)
+    if not html:
+        return None
+
+    texto = extraer_texto(html)
+    m = FECHA_NUMERO_RE.search(texto)
+    if not m:
+        log("No se pudo leer número/fecha en /ultimosorteo")
+        return None
+    dd, mm, yyyy, numero = m.groups()
+    numero = int(numero)
+
+    modalidades = parsear_modalidades(html)
+    if "tradicional" not in modalidades:
+        log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
+        return None
+
+    return {
+        "numero": numero,
+        "fecha": f"{yyyy}-{mm}-{dd}",
+        "fuente_url": url,
+        **modalidades,
+    }
 
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
@@ -177,6 +226,15 @@ def main() -> None:
 
     nuevos = 0
 
+    # 1) Fuente principal: /ultimosorteo, que se actualiza al instante.
+    ultimo = parsear_ultimo_sorteo()
+    if ultimo and ultimo["numero"] not in existentes:
+        existentes[ultimo["numero"]] = ultimo
+        nuevos += 1
+        log(f"Sorteo {ultimo['numero']} agregado desde /ultimosorteo")
+
+    # 2) Backfill de historial viejo desde /sorteos (puede ir un poco atrás
+    #    del más reciente, pero para el historial no importa la demora).
     numeros_a_revisar = set()
     if listado_html:
         numeros_a_revisar.update(obtener_numeros_historicos(listado_html))
