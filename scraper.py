@@ -1,12 +1,4 @@
 """
-Scraper de resultados del Quini 6.
-
-Fuente: https://numerosganadores.com.ar/ (sitio no oficial de terceros).
-Antes apuntaba a quini-6-resultados.com.ar, pero ese sitio devuelve 403
-Forbidden a los runners de GitHub Actions (probablemente bloquea rangos de
-IP de datacenter). Esta fuente tiene URLs más simples y no mostró ese
-bloqueo al probarla.
-
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
