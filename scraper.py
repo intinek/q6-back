@@ -4,9 +4,6 @@ encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
 data.json solo se actualiza con sorteos que pasaron la validación; un
 fallo de scraping nunca sobreescribe un dato bueno que ya estaba guardado.
-Lo mismo aplica a los montos de premio: si una fila no matchea el patrón
-esperado (aciertos / ganadores-o-Vacante / monto), se corta ahí y esa
-categoría queda con las filas que sí se pudieron validar (o ausente).
 
 Pensado para correr desde GitHub Actions dos veces por semana (miércoles y
 domingo, después de las 21:15 hs de Argentina) más una corrida diaria de
@@ -44,17 +41,6 @@ MODALIDADES = {
     "SIEMPRE SALE": "siempre_sale",
 }
 
-# Categorías que tienen tabla de premios en /ultimosorteo. POZO EXTRA no
-# tiene sus propios 6 números (reutiliza números de las otras modalidades)
-# pero sí tiene su propia tabla de premios, por eso va acá y no en MODALIDADES.
-PREMIOS_CATEGORIAS = {
-    "TRADICIONAL": "tradicional",
-    "LA SEGUNDA": "segunda",
-    "REVANCHA": "revancha",
-    "SIEMPRE SALE": "siempre_sale",
-    "POZO EXTRA": "pozo_extra",
-}
-
 # En esta fuente los números van separados por espacios, no por guiones:
 # "00 45 10 26 05 22"
 NUM_LINE_RE = re.compile(
@@ -62,7 +48,6 @@ NUM_LINE_RE = re.compile(
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
 UNA_LINEA_UN_NUMERO_RE = re.compile(r"^\d{1,2}$")
-ACIERTOS_CELDA_RE = re.compile(r"^\d{1,2}$")
 # \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
 # sitio use punto y coma, coma, un salto de línea, o cualquier separador que
 # no sea un dígito, sin que la regex se rompa por una diferencia mínima.
@@ -92,17 +77,20 @@ def validar_numeros(nums: list[int]) -> bool:
     return len(nums) == 6 and len(set(nums)) == 6 and all(0 <= n <= 45 for n in nums)
 
 
-def extraer_seis_numeros(lines: list[str], start_idx: int) -> list[int] | None:
+def extraer_seis_numeros(lines: list[str], start_idx: int) -> tuple[list[int], int] | None:
     """Busca los 6 números de una modalidad justo después de su encabezado,
     soportando los dos formatos que usa este sitio según la página:
     - Una sola línea: "37 22 05 29 08 34" (formato de /sorteos/{numero})
     - Seis líneas seguidas, un número por línea (formato de /ultimosorteo)
+
+    Devuelve (números, índice de la línea siguiente al último número), para
+    poder seguir buscando la tabla de premios justo a continuación.
     """
     # Formato 1: una línea con los 6 números juntos.
     for j in range(start_idx, min(start_idx + 3, len(lines))):
         m = NUM_LINE_RE.match(lines[j])
         if m:
-            return [int(x) for x in m.groups()]
+            return [int(x) for x in m.groups()], j + 1
 
     # Formato 2: números sueltos, uno por línea, arrancando justo después
     # del encabezado (sin nada raro en el medio).
@@ -112,117 +100,101 @@ def extraer_seis_numeros(lines: list[str], start_idx: int) -> list[int] | None:
         nums.append(int(lines[j]))
         j += 1
     if len(nums) == 6:
-        return nums
+        return nums, j
 
     return None
+
+
+def _parsear_entero(s: str) -> int | None:
+    limpio = s.strip().replace(".", "")
+    return int(limpio) if re.match(r"^\d+$", limpio) else None
+
+
+def _parsear_monto(s: str) -> int | float | None:
+    """Convierte '2.481.211.505' -> 2481211505 y '24.370.591,50' -> 24370591.5
+    (el sitio usa punto para miles y coma para decimales, al estilo argentino)."""
+    s = s.strip()
+    if not s:
+        return None
+    if "," in s:
+        entero, _, dec = s.replace(".", "").partition(",")
+        if not re.match(r"^\d+$", entero) or not re.match(r"^\d+$", dec):
+            return None
+        return float(f"{entero}.{dec}")
+    limpio = s.replace(".", "")
+    return int(limpio) if re.match(r"^\d+$", limpio) else None
+
+
+def extraer_premios_modalidad(lines: list[str], start_idx: int) -> list[dict] | None:
+    """Busca la tabla 'Cantidad de aciertos / Cantidad de ganadores / Premio
+    para cada uno' que sigue a cada modalidad, y la convierte en filas. Si no
+    la encuentra (o el formato no coincide), devuelve None sin inventar
+    nada — la modalidad se guarda igual, solo sin el detalle de premios."""
+    ACIERTOS_RE = re.compile(r"^\d{1,2}$")
+    j = start_idx
+    limite = min(start_idx + 6, len(lines))
+    while j < limite and lines[j].strip().lower() != "cantidad de aciertos":
+        j += 1
+    if j >= limite:
+        return None
+    j += 1
+    if j < len(lines) and lines[j].strip().lower() == "cantidad de ganadores":
+        j += 1
+    if j < len(lines) and lines[j].strip().lower() == "premio para cada uno":
+        j += 1
+
+    filas = []
+    while j + 2 < len(lines) and ACIERTOS_RE.match(lines[j]):
+        aciertos = int(lines[j])
+        ganadores_raw = lines[j + 1].strip()
+        vacante = ganadores_raw.lower() == "vacante"
+        ganadores = None if vacante else _parsear_entero(ganadores_raw)
+        monto = _parsear_monto(lines[j + 2])
+        if monto is None:
+            break
+        filas.append({
+            "aciertos": aciertos,
+            "vacante": vacante,
+            "ganadores": ganadores,
+            "monto": monto,
+        })
+        j += 3
+
+    return filas if filas else None
 
 
 def parsear_modalidades(html: str) -> dict:
     """Recorre el texto visible en orden y empareja cada encabezado de
     modalidad (TRADICIONAL, LA SEGUNDA, REVANCHA, SIEMPRE SALE) con los 6
-    números que aparecen después. No depende de clases CSS (que pueden
+    números que aparecen después, y de paso junta la tabla de premios de
+    cada una si la encuentra. No depende de clases CSS (que pueden
     cambiar); depende del texto que el sitio le muestra al usuario, que es
     más estable."""
     soup = BeautifulSoup(html, "html.parser")
     lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
 
     resultado: dict = {}
+    premios: dict = {}
     for i, line in enumerate(lines):
         upper = line.upper()
         for header_text, key in MODALIDADES.items():
             if upper == header_text and key not in resultado:
-                nums = extraer_seis_numeros(lines, i + 1)
-                if nums is None:
+                extraido = extraer_seis_numeros(lines, i + 1)
+                if extraido is None:
                     continue
+                nums, fin_idx = extraido
                 nums = sorted(nums)
-                if validar_numeros(nums):
-                    resultado[key] = nums
-                else:
+                if not validar_numeros(nums):
                     log(f"Números inválidos para {key}: {nums} (descartado)")
-    return resultado
+                    continue
+                resultado[key] = nums
 
+                filas_premio = extraer_premios_modalidad(lines, fin_idx)
+                if filas_premio:
+                    premios[key] = filas_premio
 
-def parse_celda_premio(texto: str) -> tuple[bool, int | None]:
-    """Interpreta una celda de la columna 'ganadores' o 'premio'.
-    'Vacante' es válida y vale None (nadie ganó esa categoría, el monto
-    mostrado ahí es el pozo acumulado, no un premio repartido).
-    Un número con puntos de miles ('2.481.211.505') es válido y se
-    devuelve como int.
-    Cualquier otra cosa se considera inválida: probablemente ya no
-    estamos parados sobre una fila de la tabla, sino sobre el texto
-    suelto que viene después (la aclaración entre paréntesis, el
-    próximo encabezado, etc.)."""
-    texto = texto.strip()
-    if texto.lower() == "vacante":
-        return True, None
-    limpio = texto.replace(".", "")
-    if limpio.isdigit():
-        return True, int(limpio)
-    return False, None
-
-
-def extraer_filas_premios(lines: list[str], start_idx: int) -> list[dict]:
-    """A partir de la primera celda de datos de la tabla (no del
-    encabezado 'Cantidad de aciertos...'), va tomando de a 3 líneas
-    (aciertos, ganadores, premio) mientras matcheen el patrón esperado.
-    Corta apenas una fila no matchea — nunca fuerza una fila dudosa."""
-    filas = []
-    j = start_idx
-    while j + 2 < len(lines):
-        aciertos_txt = lines[j].strip()
-        if not ACIERTOS_CELDA_RE.match(aciertos_txt):
-            break
-        ok_ganadores, ganadores = parse_celda_premio(lines[j + 1])
-        ok_premio, premio = parse_celda_premio(lines[j + 2])
-        if not ok_ganadores or not ok_premio or premio is None:
-            # premio nunca debería ser "Vacante" (siempre hay un monto,
-            # sea repartido o acumulado); si lo es, algo no matcheó bien
-            # y es más seguro cortar acá que guardar un dato dudoso.
-            break
-        filas.append({
-            "aciertos": int(aciertos_txt),
-            "ganadores": ganadores,          # None = vacante (nadie ganó)
-            "premio_por_ganador": premio,    # pesos. Si ganadores es None,
-                                              # este es el pozo acumulado.
-        })
-        j += 3
-    return filas
-
-
-def parsear_premios(html: str) -> dict:
-    """Busca, para cada categoría (TRADICIONAL, LA SEGUNDA, REVANCHA,
-    SIEMPRE SALE, POZO EXTRA), el encabezado de su tabla de premios
-    ('Cantidad de aciertos...') y extrae las filas de datos que le
-    siguen. Si no encuentra el encabezado de la tabla dentro de una
-    ventana razonable de líneas después del título de la categoría, esa
-    categoría queda ausente del resultado (no se completa a ciegas)."""
-    soup = BeautifulSoup(html, "html.parser")
-    lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
-
-    resultado: dict = {}
-    for i, line in enumerate(lines):
-        upper = line.upper()
-        for header_text, key in PREMIOS_CATEGORIAS.items():
-            if upper != header_text or key in resultado:
-                continue
-
-            header_idx = None
-            for j in range(i + 1, min(i + 25, len(lines))):
-                if lines[j].strip().lower().startswith("cantidad de aciertos"):
-                    header_idx = j
-                    break
-            if header_idx is None:
-                log(f"No se encontró tabla de premios para {header_text}")
-                continue
-
-            # el encabezado de la tabla son 3 celdas ("Cantidad de
-            # aciertos", "Cantidad de ganadores", "Premio para cada
-            # uno"); los datos arrancan después de esas 3.
-            filas = extraer_filas_premios(lines, header_idx + 3)
-            if filas:
-                resultado[key] = filas
-            else:
-                log(f"Tabla de premios de {header_text} encontrada pero sin filas válidas")
+    if premios:
+        resultado["premios"] = premios
     return resultado
 
 
@@ -255,13 +227,6 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     else:
         log(f"Sorteo {numero}: no se pudo confirmar la fecha en el texto, se guarda sin fecha")
 
-    # Nota: no confirmé todavía si /sorteos/{numero} tiene la misma tabla
-    # de premios que /ultimosorteo (la estructura de esta página se vio
-    # solo en /ultimosorteo). Se intenta igual porque extraer_filas_premios
-    # ya corta sola si no encuentra el patrón esperado, pero conviene
-    # revisar el log la primera vez que corra contra el historial viejo.
-    premios = parsear_premios(html)
-
     resultado = {
         "numero": numero,
         "fuente_url": url,
@@ -269,8 +234,6 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     }
     if fecha:
         resultado["fecha"] = fecha
-    if premios:
-        resultado["premios"] = premios
     return resultado
 
 
@@ -297,19 +260,12 @@ def parsear_ultimo_sorteo() -> dict | None:
         log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
         return None
 
-    premios = parsear_premios(html)
-    if not premios:
-        log(f"/ultimosorteo (sorteo {numero}): no se pudo parsear ninguna tabla de premios")
-
-    resultado = {
+    return {
         "numero": numero,
         "fecha": f"{yyyy}-{mm}-{dd}",
         "fuente_url": url,
         **modalidades,
     }
-    if premios:
-        resultado["premios"] = premios
-    return resultado
 
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
