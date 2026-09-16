@@ -169,6 +169,13 @@ def parsear_ultimo_sorteo() -> dict | None:
 
     modalidades = parsear_modalidades(html)
     if "tradicional" not in modalidades:
+        # --- DEBUG temporal ---
+        soup_debug = BeautifulSoup(html, "html.parser")
+        lines_debug = [l.strip() for l in soup_debug.get_text("\n").split("\n") if l.strip()]
+        for idx, line in enumerate(lines_debug):
+            if "TRADICIONAL" in line.upper() or "SORTEO" in line.upper() or idx < 40:
+                log(f"DEBUG linea[{idx}]: {line!r}")
+        # --- fin debug temporal ---
         log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
         return None
 
@@ -178,7 +185,6 @@ def parsear_ultimo_sorteo() -> dict | None:
         "fuente_url": url,
         **modalidades,
     }
-
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
     soup = BeautifulSoup(listado_html, "html.parser")
