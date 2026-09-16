@@ -4,6 +4,9 @@ encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
 data.json solo se actualiza con sorteos que pasaron la validación; un
 fallo de scraping nunca sobreescribe un dato bueno que ya estaba guardado.
+Lo mismo aplica a los montos de premio: si una fila no matchea el patrón
+esperado (aciertos / ganadores-o-Vacante / monto), se corta ahí y esa
+categoría queda con las filas que sí se pudieron validar (o ausente).
 
 Pensado para correr desde GitHub Actions dos veces por semana (miércoles y
 domingo, después de las 21:15 hs de Argentina) más una corrida diaria de
@@ -41,6 +44,17 @@ MODALIDADES = {
     "SIEMPRE SALE": "siempre_sale",
 }
 
+# Categorías que tienen tabla de premios en /ultimosorteo. POZO EXTRA no
+# tiene sus propios 6 números (reutiliza números de las otras modalidades)
+# pero sí tiene su propia tabla de premios, por eso va acá y no en MODALIDADES.
+PREMIOS_CATEGORIAS = {
+    "TRADICIONAL": "tradicional",
+    "LA SEGUNDA": "segunda",
+    "REVANCHA": "revancha",
+    "SIEMPRE SALE": "siempre_sale",
+    "POZO EXTRA": "pozo_extra",
+}
+
 # En esta fuente los números van separados por espacios, no por guiones:
 # "00 45 10 26 05 22"
 NUM_LINE_RE = re.compile(
@@ -48,6 +62,7 @@ NUM_LINE_RE = re.compile(
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
 UNA_LINEA_UN_NUMERO_RE = re.compile(r"^\d{1,2}$")
+ACIERTOS_CELDA_RE = re.compile(r"^\d{1,2}$")
 # \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
 # sitio use punto y coma, coma, un salto de línea, o cualquier separador que
 # no sea un dígito, sin que la regex se rompa por una diferencia mínima.
@@ -127,6 +142,90 @@ def parsear_modalidades(html: str) -> dict:
     return resultado
 
 
+def parse_celda_premio(texto: str) -> tuple[bool, int | None]:
+    """Interpreta una celda de la columna 'ganadores' o 'premio'.
+    'Vacante' es válida y vale None (nadie ganó esa categoría, el monto
+    mostrado ahí es el pozo acumulado, no un premio repartido).
+    Un número con puntos de miles ('2.481.211.505') es válido y se
+    devuelve como int.
+    Cualquier otra cosa se considera inválida: probablemente ya no
+    estamos parados sobre una fila de la tabla, sino sobre el texto
+    suelto que viene después (la aclaración entre paréntesis, el
+    próximo encabezado, etc.)."""
+    texto = texto.strip()
+    if texto.lower() == "vacante":
+        return True, None
+    limpio = texto.replace(".", "")
+    if limpio.isdigit():
+        return True, int(limpio)
+    return False, None
+
+
+def extraer_filas_premios(lines: list[str], start_idx: int) -> list[dict]:
+    """A partir de la primera celda de datos de la tabla (no del
+    encabezado 'Cantidad de aciertos...'), va tomando de a 3 líneas
+    (aciertos, ganadores, premio) mientras matcheen el patrón esperado.
+    Corta apenas una fila no matchea — nunca fuerza una fila dudosa."""
+    filas = []
+    j = start_idx
+    while j + 2 < len(lines):
+        aciertos_txt = lines[j].strip()
+        if not ACIERTOS_CELDA_RE.match(aciertos_txt):
+            break
+        ok_ganadores, ganadores = parse_celda_premio(lines[j + 1])
+        ok_premio, premio = parse_celda_premio(lines[j + 2])
+        if not ok_ganadores or not ok_premio or premio is None:
+            # premio nunca debería ser "Vacante" (siempre hay un monto,
+            # sea repartido o acumulado); si lo es, algo no matcheó bien
+            # y es más seguro cortar acá que guardar un dato dudoso.
+            break
+        filas.append({
+            "aciertos": int(aciertos_txt),
+            "ganadores": ganadores,          # None = vacante (nadie ganó)
+            "premio_por_ganador": premio,    # pesos. Si ganadores es None,
+                                              # este es el pozo acumulado.
+        })
+        j += 3
+    return filas
+
+
+def parsear_premios(html: str) -> dict:
+    """Busca, para cada categoría (TRADICIONAL, LA SEGUNDA, REVANCHA,
+    SIEMPRE SALE, POZO EXTRA), el encabezado de su tabla de premios
+    ('Cantidad de aciertos...') y extrae las filas de datos que le
+    siguen. Si no encuentra el encabezado de la tabla dentro de una
+    ventana razonable de líneas después del título de la categoría, esa
+    categoría queda ausente del resultado (no se completa a ciegas)."""
+    soup = BeautifulSoup(html, "html.parser")
+    lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
+
+    resultado: dict = {}
+    for i, line in enumerate(lines):
+        upper = line.upper()
+        for header_text, key in PREMIOS_CATEGORIAS.items():
+            if upper != header_text or key in resultado:
+                continue
+
+            header_idx = None
+            for j in range(i + 1, min(i + 25, len(lines))):
+                if lines[j].strip().lower().startswith("cantidad de aciertos"):
+                    header_idx = j
+                    break
+            if header_idx is None:
+                log(f"No se encontró tabla de premios para {header_text}")
+                continue
+
+            # el encabezado de la tabla son 3 celdas ("Cantidad de
+            # aciertos", "Cantidad de ganadores", "Premio para cada
+            # uno"); los datos arrancan después de esas 3.
+            filas = extraer_filas_premios(lines, header_idx + 3)
+            if filas:
+                resultado[key] = filas
+            else:
+                log(f"Tabla de premios de {header_text} encontrada pero sin filas válidas")
+    return resultado
+
+
 def extraer_texto(html: str) -> str:
     """Texto visible de la página, sin tags ni entidades HTML — mucho más
     confiable para buscar un patrón de texto que el HTML crudo, que puede
@@ -156,6 +255,13 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     else:
         log(f"Sorteo {numero}: no se pudo confirmar la fecha en el texto, se guarda sin fecha")
 
+    # Nota: no confirmé todavía si /sorteos/{numero} tiene la misma tabla
+    # de premios que /ultimosorteo (la estructura de esta página se vio
+    # solo en /ultimosorteo). Se intenta igual porque extraer_filas_premios
+    # ya corta sola si no encuentra el patrón esperado, pero conviene
+    # revisar el log la primera vez que corra contra el historial viejo.
+    premios = parsear_premios(html)
+
     resultado = {
         "numero": numero,
         "fuente_url": url,
@@ -163,6 +269,8 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     }
     if fecha:
         resultado["fecha"] = fecha
+    if premios:
+        resultado["premios"] = premios
     return resultado
 
 
@@ -189,12 +297,19 @@ def parsear_ultimo_sorteo() -> dict | None:
         log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
         return None
 
-    return {
+    premios = parsear_premios(html)
+    if not premios:
+        log(f"/ultimosorteo (sorteo {numero}): no se pudo parsear ninguna tabla de premios")
+
+    resultado = {
         "numero": numero,
         "fecha": f"{yyyy}-{mm}-{dd}",
         "fuente_url": url,
         **modalidades,
     }
+    if premios:
+        resultado["premios"] = premios
+    return resultado
 
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
