@@ -1,12 +1,4 @@
 """
-Scraper de resultados del Quini 6.
-
-Fuente: https://numerosganadores.com.ar/ (sitio no oficial de terceros).
-Antes apuntaba a quini-6-resultados.com.ar, pero ese sitio devuelve 403
-Forbidden a los runners de GitHub Actions (probablemente bloquea rangos de
-IP de datacenter). Esta fuente tiene URLs más simples y no mostró ese
-bloqueo al probarla.
-
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
@@ -55,6 +47,7 @@ NUM_LINE_RE = re.compile(
     r"^(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})$"
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
+UNA_LINEA_UN_NUMERO_RE = re.compile(r"^\d{1,2}$")
 # \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
 # sitio use punto y coma, coma, un salto de línea, o cualquier separador que
 # no sea un dígito, sin que la regex se rompa por una diferencia mínima.
@@ -84,12 +77,37 @@ def validar_numeros(nums: list[int]) -> bool:
     return len(nums) == 6 and len(set(nums)) == 6 and all(0 <= n <= 45 for n in nums)
 
 
+def extraer_seis_numeros(lines: list[str], start_idx: int) -> list[int] | None:
+    """Busca los 6 números de una modalidad justo después de su encabezado,
+    soportando los dos formatos que usa este sitio según la página:
+    - Una sola línea: "37 22 05 29 08 34" (formato de /sorteos/{numero})
+    - Seis líneas seguidas, un número por línea (formato de /ultimosorteo)
+    """
+    # Formato 1: una línea con los 6 números juntos.
+    for j in range(start_idx, min(start_idx + 3, len(lines))):
+        m = NUM_LINE_RE.match(lines[j])
+        if m:
+            return [int(x) for x in m.groups()]
+
+    # Formato 2: números sueltos, uno por línea, arrancando justo después
+    # del encabezado (sin nada raro en el medio).
+    nums = []
+    j = start_idx
+    while j < len(lines) and len(nums) < 6 and UNA_LINEA_UN_NUMERO_RE.match(lines[j]):
+        nums.append(int(lines[j]))
+        j += 1
+    if len(nums) == 6:
+        return nums
+
+    return None
+
+
 def parsear_modalidades(html: str) -> dict:
     """Recorre el texto visible en orden y empareja cada encabezado de
-    modalidad (TRADICIONAL, LA SEGUNDA, REVANCHA, SIEMPRE SALE) con la
-    primera línea de 6 números que aparece después. No depende de clases
-    CSS (que pueden cambiar); depende del texto que el sitio le muestra
-    al usuario, que es más estable."""
+    modalidad (TRADICIONAL, LA SEGUNDA, REVANCHA, SIEMPRE SALE) con los 6
+    números que aparecen después. No depende de clases CSS (que pueden
+    cambiar); depende del texto que el sitio le muestra al usuario, que es
+    más estable."""
     soup = BeautifulSoup(html, "html.parser")
     lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
 
@@ -98,15 +116,14 @@ def parsear_modalidades(html: str) -> dict:
         upper = line.upper()
         for header_text, key in MODALIDADES.items():
             if upper == header_text and key not in resultado:
-                for j in range(i + 1, min(i + 4, len(lines))):
-                    m = NUM_LINE_RE.match(lines[j])
-                    if m:
-                        nums = sorted(int(x) for x in m.groups())
-                        if validar_numeros(nums):
-                            resultado[key] = nums
-                        else:
-                            log(f"Números inválidos para {key}: {nums} (descartado)")
-                        break
+                nums = extraer_seis_numeros(lines, i + 1)
+                if nums is None:
+                    continue
+                nums = sorted(nums)
+                if validar_numeros(nums):
+                    resultado[key] = nums
+                else:
+                    log(f"Números inválidos para {key}: {nums} (descartado)")
     return resultado
 
 
@@ -169,13 +186,6 @@ def parsear_ultimo_sorteo() -> dict | None:
 
     modalidades = parsear_modalidades(html)
     if "tradicional" not in modalidades:
-        # --- DEBUG temporal ---
-        soup_debug = BeautifulSoup(html, "html.parser")
-        lines_debug = [l.strip() for l in soup_debug.get_text("\n").split("\n") if l.strip()]
-        for idx, line in enumerate(lines_debug):
-            if "TRADICIONAL" in line.upper() or "SORTEO" in line.upper() or idx < 40:
-                log(f"DEBUG linea[{idx}]: {line!r}")
-        # --- fin debug temporal ---
         log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
         return None
 
@@ -185,6 +195,7 @@ def parsear_ultimo_sorteo() -> dict | None:
         "fuente_url": url,
         **modalidades,
     }
+
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
     soup = BeautifulSoup(listado_html, "html.parser")
