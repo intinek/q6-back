@@ -11,6 +11,7 @@ respaldo.
 """
 
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -199,6 +200,16 @@ def main() -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     log(f"Listo. {nuevos} sorteo(s) nuevo(s). Total guardados: {len(data['sorteos'])}")
+
+    # Avisarle al workflow de GitHub Actions si hay que disparar una notificación push.
+    # Solo notificamos el sorteo MÁS RECIENTE agregado en esta corrida (no todo el
+    # historial, para no mandar 20 pushes si es la primera vez que se llena la base).
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output and nuevos > 0:
+        ultimo_sorteo = data["sorteos"][0]["numero"] if data["sorteos"] else None
+        if ultimo_sorteo:
+            with open(github_output, "a", encoding="utf-8") as f:
+                f.write(f"nuevo_sorteo={ultimo_sorteo}\n")
 
 
 if __name__ == "__main__":
