@@ -1,4 +1,12 @@
 """
+Scraper de resultados del Quini 6.
+
+Fuente: https://numerosganadores.com.ar/ (sitio no oficial de terceros).
+Antes apuntaba a quini-6-resultados.com.ar, pero ese sitio devuelve 403
+Forbidden a los runners de GitHub Actions (probablemente bloquea rangos de
+IP de datacenter). Esta fuente tiene URLs más simples y no mostró ese
+bloqueo al probarla.
+
 Principio central: NUNCA se inventan ni completan datos. Si el parseo no
 encuentra exactamente 6 números válidos (0-45, sin repetir) para una
 modalidad, esa modalidad queda ausente y se loguea el problema. El archivo
@@ -11,7 +19,6 @@ respaldo.
 """
 
 import json
-import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -47,12 +54,8 @@ NUM_LINE_RE = re.compile(
     r"^(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})$"
 )
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
-UNA_LINEA_UN_NUMERO_RE = re.compile(r"^\d{1,2}$")
-# \D*? entre la fecha y "Número" en vez de exigir ";" literal: tolera que el
-# sitio use punto y coma, coma, un salto de línea, o cualquier separador que
-# no sea un dígito, sin que la regex se rompa por una diferencia mínima.
 FECHA_NUMERO_RE = re.compile(
-    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4})\D*?N[uú]mero de sorteo:\s*(\d+)"
+    r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4});\s*N[uú]mero de sorteo:\s*(\d+)"
 )
 PROX_SORTEO_RE = re.compile(
     r"Sorteo (\d+)\.\s*(\d{1,2})/(\d{1,2})/(\d{4})\.\s*Pozo Estimado:\s*\$?\s*([\d\.]+)"
@@ -76,135 +79,98 @@ def fetch(url: str) -> str | None:
 def validar_numeros(nums: list[int]) -> bool:
     return len(nums) == 6 and len(set(nums)) == 6 and all(0 <= n <= 45 for n in nums)
 
-
-def extraer_seis_numeros(lines: list[str], start_idx: int) -> tuple[list[int], int] | None:
-    """Busca los 6 números de una modalidad justo después de su encabezado,
-    soportando los dos formatos que usa este sitio según la página:
-    - Una sola línea: "37 22 05 29 08 34" (formato de /sorteos/{numero})
-    - Seis líneas seguidas, un número por línea (formato de /ultimosorteo)
-
-    Devuelve (números, índice de la línea siguiente al último número), para
-    poder seguir buscando la tabla de premios justo a continuación.
-    """
-    # Formato 1: una línea con los 6 números juntos.
-    for j in range(start_idx, min(start_idx + 3, len(lines))):
-        m = NUM_LINE_RE.match(lines[j])
-        if m:
-            return [int(x) for x in m.groups()], j + 1
-
-    # Formato 2: números sueltos, uno por línea, arrancando justo después
-    # del encabezado (sin nada raro en el medio).
-    nums = []
-    j = start_idx
-    while j < len(lines) and len(nums) < 6 and UNA_LINEA_UN_NUMERO_RE.match(lines[j]):
-        nums.append(int(lines[j]))
-        j += 1
-    if len(nums) == 6:
-        return nums, j
-
-    return None
-
-
-def _parsear_entero(s: str) -> int | None:
-    limpio = s.strip().replace(".", "")
-    return int(limpio) if re.match(r"^\d+$", limpio) else None
-
-
-def _parsear_monto(s: str) -> int | float | None:
-    """Convierte '2.481.211.505' -> 2481211505 y '24.370.591,50' -> 24370591.5
-    (el sitio usa punto para miles y coma para decimales, al estilo argentino)."""
-    s = s.strip()
-    if not s:
+def _parse_entero(texto: str) -> int | None:
+    texto = texto.strip().replace(".", "").replace(",", "")
+    try:
+        return int(texto)
+    except ValueError:
         return None
-    if "," in s:
-        entero, _, dec = s.replace(".", "").partition(",")
-        if not re.match(r"^\d+$", entero) or not re.match(r"^\d+$", dec):
+
+
+def _parse_monto(texto: str):
+    """Convierte un monto en formato argentino a número. Si tiene coma
+    decimal ('12.490.945,20') devuelve float; si no ('5.654.021.411')
+    devuelve int, para no perder precisión en pozos grandes."""
+    texto = texto.strip()
+    if not texto:
+        return None
+    if "," in texto:
+        texto = texto.replace(".", "").replace(",", ".")
+        try:
+            return float(texto)
+        except ValueError:
             return None
-        return float(f"{entero}.{dec}")
-    limpio = s.replace(".", "")
-    return int(limpio) if re.match(r"^\d+$", limpio) else None
-
-
-def extraer_premios_modalidad(lines: list[str], start_idx: int) -> list[dict] | None:
-    """Busca la tabla 'Cantidad de aciertos / Cantidad de ganadores / Premio
-    para cada uno' que sigue a cada modalidad, y la convierte en filas. Si no
-    la encuentra (o el formato no coincide), devuelve None sin inventar
-    nada — la modalidad se guarda igual, solo sin el detalle de premios."""
-    ACIERTOS_RE = re.compile(r"^\d{1,2}$")
-    j = start_idx
-    limite = min(start_idx + 6, len(lines))
-    while j < limite and lines[j].strip().lower() != "cantidad de aciertos":
-        j += 1
-    if j >= limite:
+    texto = texto.replace(".", "")
+    try:
+        return int(texto)
+    except ValueError:
         return None
-    j += 1
-    if j < len(lines) and lines[j].strip().lower() == "cantidad de ganadores":
-        j += 1
-    if j < len(lines) and lines[j].strip().lower() == "premio para cada uno":
-        j += 1
-
-    filas = []
-    while j + 2 < len(lines) and ACIERTOS_RE.match(lines[j]):
-        aciertos = int(lines[j])
-        ganadores_raw = lines[j + 1].strip()
-        vacante = ganadores_raw.lower() == "vacante"
-        ganadores = None if vacante else _parsear_entero(ganadores_raw)
-        monto = _parsear_monto(lines[j + 2])
-        if monto is None:
-            break
-        filas.append({
-            "aciertos": aciertos,
-            "vacante": vacante,
-            "ganadores": ganadores,
-            "monto": monto,
-        })
-        j += 3
-
-    return filas if filas else None
-
-
 def parsear_modalidades(html: str) -> dict:
-    """Recorre el texto visible en orden y empareja cada encabezado de
-    modalidad (TRADICIONAL, LA SEGUNDA, REVANCHA, SIEMPRE SALE) con los 6
-    números que aparecen después, y de paso junta la tabla de premios de
-    cada una si la encuentra. No depende de clases CSS (que pueden
-    cambiar); depende del texto que el sitio le muestra al usuario, que es
-    más estable."""
+    """Ubica cada encabezado de modalidad en el texto de la página y toma
+    los números de 1-2 dígitos que aparecen entre el encabezado y la
+    palabra "Ganadores" (que marca el inicio de la tabla de premios).
+    No depende de que los 6 números estén en una sola línea de texto,
+    porque el sitio puede envolver cada bolilla en su propio elemento."""
     soup = BeautifulSoup(html, "html.parser")
-    lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
+    texto = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
 
     resultado: dict = {}
-    premios: dict = {}
-    for i, line in enumerate(lines):
-        upper = line.upper()
-        for header_text, key in MODALIDADES.items():
-            if upper == header_text and key not in resultado:
-                extraido = extraer_seis_numeros(lines, i + 1)
-                if extraido is None:
-                    continue
-                nums, fin_idx = extraido
-                nums = sorted(nums)
-                if not validar_numeros(nums):
-                    log(f"Números inválidos para {key}: {nums} (descartado)")
-                    continue
-                resultado[key] = nums
-
-                filas_premio = extraer_premios_modalidad(lines, fin_idx)
-                if filas_premio:
-                    premios[key] = filas_premio
-
-    if premios:
-        resultado["premios"] = premios
+    for header_text, key in MODALIDADES.items():
+        start = texto.find(header_text)
+        if start == -1:
+            log(f"No se encontró el encabezado '{header_text}' en la página")
+            continue
+        end = texto.find("Ganadores", start)
+        if end == -1:
+            end = start + 200
+        ventana = texto[start + len(header_text):end]
+        nums = [int(n) for n in re.findall(r"\b\d{1,2}\b", ventana)]
+        if len(nums) < 6:
+            log(f"Solo se encontraron {len(nums)} números para {key} (se esperaban 6), descartado")
+            continue
+        candidato = sorted(nums[:6])
+        if validar_numeros(candidato):
+            resultado[key] = candidato
+        else:
+            log(f"Números inválidos para {key}: {candidato} (descartado)")
     return resultado
 
+def parsear_premios(html: str) -> dict:
+    """Para cada modalidad (y el pozo extra), busca su encabezado y toma
+    la primera tabla que aparece después, extrayendo aciertos/ganadores/
+    monto de cada fila."""
+    soup = BeautifulSoup(html, "html.parser")
+    headers = {**MODALIDADES, "POZO EXTRA": "pozo_extra"}
+    resultado: dict = {}
 
-def extraer_texto(html: str) -> str:
-    """Texto visible de la página, sin tags ni entidades HTML — mucho más
-    confiable para buscar un patrón de texto que el HTML crudo, que puede
-    tener el texto partido entre tags o con entidades sin decodificar."""
-    return BeautifulSoup(html, "html.parser").get_text(" ")
-
-
+    for tag in soup.find_all(["h1", "h2", "h3", "h4"]):
+        texto_header = tag.get_text(strip=True).upper()
+        if texto_header not in headers or headers[texto_header] in resultado:
+            continue
+        key = headers[texto_header]
+        tabla = tag.find_next("table")
+        if not tabla:
+            continue
+        filas = []
+        for fila in tabla.find_all("tr")[1:]:
+            celdas = [c.get_text(strip=True) for c in fila.find_all(["td", "th"])]
+            if len(celdas) < 3:
+                continue
+            aciertos_txt, ganadores_txt, monto_txt = celdas[0], celdas[1], celdas[2]
+            try:
+                aciertos = int(aciertos_txt)
+            except ValueError:
+                continue
+            es_vacante = ganadores_txt.strip().lower() == "vacante"
+            filas.append({
+                "aciertos": aciertos,
+                "vacante": es_vacante,
+                "ganadores": None if es_vacante else _parse_entero(ganadores_txt),
+                "monto": _parse_monto(monto_txt),
+            })
+        if filas:
+            resultado[key] = filas
+    return resultado
 def parsear_sorteo_detalle(numero: int) -> dict | None:
     url = f"{BASE_URL}sorteos/{numero}"
     html = fetch(url)
@@ -215,9 +181,10 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
     if "tradicional" not in modalidades:
         log(f"Sorteo {numero}: no se pudo validar Tradicional, se descarta la página entera")
         return None
-
+    
+    premios = parsear_premios(html)
     fecha = None
-    m = FECHA_NUMERO_RE.search(extraer_texto(html))
+    m = FECHA_NUMERO_RE.search(html)
     if m:
         dd, mm, yyyy, num_confirmado = m.groups()
         if int(num_confirmado) != numero:
@@ -231,41 +198,11 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
         "numero": numero,
         "fuente_url": url,
         **modalidades,
+        "premios": premios,
     }
     if fecha:
         resultado["fecha"] = fecha
     return resultado
-
-
-def parsear_ultimo_sorteo() -> dict | None:
-    """La página /ultimosorteo se actualiza al instante apenas termina el
-    sorteo (a diferencia de /sorteos, que puede tardar en sumar el link al
-    número más nuevo). La usamos como fuente principal para el sorteo más
-    reciente, y /sorteos queda solo para completar el historial viejo."""
-    url = f"{BASE_URL}ultimosorteo"
-    html = fetch(url)
-    if not html:
-        return None
-
-    texto = extraer_texto(html)
-    m = FECHA_NUMERO_RE.search(texto)
-    if not m:
-        log("No se pudo leer número/fecha en /ultimosorteo")
-        return None
-    dd, mm, yyyy, numero = m.groups()
-    numero = int(numero)
-
-    modalidades = parsear_modalidades(html)
-    if "tradicional" not in modalidades:
-        log(f"/ultimosorteo dice ser el sorteo {numero} pero no se pudo validar Tradicional, se descarta")
-        return None
-
-    return {
-        "numero": numero,
-        "fecha": f"{yyyy}-{mm}-{dd}",
-        "fuente_url": url,
-        **modalidades,
-    }
 
 
 def obtener_numeros_historicos(listado_html: str) -> list[int]:
@@ -307,6 +244,12 @@ def main() -> None:
 
     home_html = fetch(BASE_URL)
     listado_html = fetch(SORTEOS_LIST_URL)
+    if listado_html:
+        log(f"DEBUG listado_html length: {len(listado_html)}")
+        log(f"DEBUG contiene '/sorteos/': {listado_html.count('/sorteos/')} veces")
+        log(f"DEBUG snippet: {listado_html[:300]!r}")
+    else:
+        log("DEBUG listado_html es None")
 
     if not home_html and not listado_html:
         log("No se pudo obtener ni la home ni el listado. Se conserva el data.json existente sin cambios.")
@@ -314,15 +257,6 @@ def main() -> None:
 
     nuevos = 0
 
-    # 1) Fuente principal: /ultimosorteo, que se actualiza al instante.
-    ultimo = parsear_ultimo_sorteo()
-    if ultimo and ultimo["numero"] not in existentes:
-        existentes[ultimo["numero"]] = ultimo
-        nuevos += 1
-        log(f"Sorteo {ultimo['numero']} agregado desde /ultimosorteo")
-
-    # 2) Backfill de historial viejo desde /sorteos (puede ir un poco atrás
-    #    del más reciente, pero para el historial no importa la demora).
     numeros_a_revisar = set()
     if listado_html:
         numeros_a_revisar.update(obtener_numeros_historicos(listado_html))
@@ -346,16 +280,6 @@ def main() -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     log(f"Listo. {nuevos} sorteo(s) nuevo(s). Total guardados: {len(data['sorteos'])}")
-
-    # Avisarle al workflow de GitHub Actions si hay que disparar una notificación push.
-    # Solo notificamos el sorteo MÁS RECIENTE agregado en esta corrida (no todo el
-    # historial, para no mandar 20 pushes si es la primera vez que se llena la base).
-    github_output = os.environ.get("GITHUB_OUTPUT")
-    if github_output and nuevos > 0:
-        ultimo_sorteo = data["sorteos"][0]["numero"] if data["sorteos"] else None
-        if ultimo_sorteo:
-            with open(github_output, "a", encoding="utf-8") as f:
-                f.write(f"nuevo_sorteo={ultimo_sorteo}\n")
 
 
 if __name__ == "__main__":
