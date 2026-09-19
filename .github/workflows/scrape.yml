@@ -2,16 +2,10 @@ name: Scrapear resultados Quini 6
 
 on:
   schedule:
-
-    # Primeros intentos: 21:22, 21:37, 21:52 hs ART = 00:22, 00:37, 00:52 UTC
-    # del día siguiente (domingo/miércoles a la noche -> lunes/jueves UTC).
-    - cron: "22,37,52 0 * * 1,4"
-
-    # Segunda hora de intentos: 22:07, 22:22, 22:37, 22:52 hs ART = 01:07, 01:22, 01:37, 01:52 UTC
-    - cron: "7,22,37,52 1 * * 1,4"
-
-    # Último intento nocturno: 23:22 hs ART = 02:22 UTC
-    - cron: "22 2 * * 1,4"
+    # El disparo preciso ahora lo hace cron-job.org pegándole a la API con
+    # workflow_dispatch (más confiable que el schedule interno de GitHub,
+    # que puede demorarse varias horas, a veces hasta la madrugada). Esto
+    # que queda acá es solo un respaldo diario por si cron-job.org falla.
 
     # Backup diario 09:13 hs ART = 12:13 UTC, por si se publica tarde o falló algo.
     - cron: "13 12 * * *"
@@ -19,10 +13,10 @@ on:
   workflow_dispatch:
 
 env:
-  # Esto SÍ tiene efecto (a diferencia de CRON_TZ arriba): hace que el
-  # runner tenga la hora local de Argentina DURANTE la ejecución del job,
-  # útil si el scraper llegara a usar la hora local del sistema. No afecta
-  # en nada el horario de disparo del "schedule" de arriba.
+  # Esto SÍ tiene efecto (a diferencia de CRON_TZ): hace que el runner
+  # tenga la hora local de Argentina DURANTE la ejecución del job, útil si
+  # el scraper llegara a usar la hora local del sistema. No afecta en nada
+  # el horario de disparo del "schedule" de arriba (ese siempre es UTC).
   TZ: America/Argentina/Buenos_Aires
 
 concurrency:
