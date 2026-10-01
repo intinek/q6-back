@@ -46,9 +46,6 @@ MODALIDADES = {
 }
 
 SORTEO_DETAIL_HREF_RE = re.compile(r"/sorteos/(\d+)\s*$")
-# \D*? entre la fecha y "Número" (en vez de exigir ";" literal) tolera que
-# el sitio use punto y coma, coma, salto de línea, o cualquier separador
-# que no sea un dígito, sin que la regex se rompa por una diferencia mínima.
 FECHA_NUMERO_RE = re.compile(
     r"Fecha del sorteo:\s*(\d{2})/(\d{2})/(\d{4})\D*?N[uú]mero de sorteo:\s*(\d+)"
 )
@@ -76,20 +73,10 @@ def validar_numeros(nums: list[int]) -> bool:
 
 
 def extraer_texto(html: str) -> str:
-    """Texto visible de la página, sin tags ni entidades HTML — mucho más
-    confiable para buscar un patrón de texto que el HTML crudo, que puede
-    tener el texto partido entre tags o con entidades sin decodificar."""
     return BeautifulSoup(html, "html.parser").get_text(" ")
 
 
 def parsear_modalidades(html: str) -> dict:
-    """Ubica cada encabezado de modalidad en el texto de la página y toma
-    los números de 1-2 dígitos que aparecen entre el encabezado y la
-    palabra "Ganadores" (que marca el inicio de la tabla de premios).
-    No depende de que los 6 números estén en una sola línea de texto ni de
-    cuántos elementos HTML los envuelven, porque busca sobre el texto ya
-    aplanado — funciona igual si el sitio pone los 6 juntos en una línea
-    o cada uno en su propio elemento."""
     soup = BeautifulSoup(html, "html.parser")
     texto = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
 
@@ -124,9 +111,6 @@ def _parse_entero(texto: str) -> int | None:
 
 
 def _parse_monto(texto: str):
-    """Convierte un monto en formato argentino a número. Si tiene coma
-    decimal ('12.490.945,20') devuelve float; si no ('5.654.021.411')
-    devuelve int, para no perder precisión en pozos grandes."""
     texto = texto.strip()
     if not texto:
         return None
@@ -144,10 +128,6 @@ def _parse_monto(texto: str):
 
 
 def parsear_premios(html: str) -> dict:
-    """Para cada modalidad (y el pozo extra), busca su encabezado y toma
-    la primera tabla <table> que aparece después, extrayendo aciertos/
-    ganadores/monto de cada fila. Si la página no usa <table> para esto,
-    simplemente no encuentra nada — no inventa filas."""
     soup = BeautifulSoup(html, "html.parser")
     headers = {**MODALIDADES, "POZO EXTRA": "pozo_extra"}
     resultado: dict = {}
@@ -219,10 +199,6 @@ def parsear_sorteo_detalle(numero: int) -> dict | None:
 
 
 def parsear_ultimo_sorteo() -> dict | None:
-    """La página /ultimosorteo se actualiza al instante apenas termina el
-    sorteo (a diferencia de /sorteos, que puede tardar en sumar el link al
-    número más nuevo). La usamos como fuente principal para el sorteo más
-    reciente, y /sorteos queda solo para completar el historial viejo."""
     url = f"{BASE_URL}ultimosorteo"
     html = fetch(url)
     if not html:
@@ -284,7 +260,7 @@ def cargar_data_existente() -> dict:
     if DATA_PATH.exists():
         with open(DATA_PATH, encoding="utf-8") as f:
             return json.load(f)
-    return {"sorteos": [], "proximo_sorteo": None, "last_updated": None}
+    return {"sorteos": [], "proximo_sorteo": None, "last_updated": None, "ultimo_notificado": None}
 
 
 def main() -> None:
@@ -300,15 +276,12 @@ def main() -> None:
 
     nuevos = 0
 
-    # 1) Fuente principal: /ultimosorteo, que se actualiza al instante.
     ultimo = parsear_ultimo_sorteo()
     if ultimo and ultimo["numero"] not in existentes:
         existentes[ultimo["numero"]] = ultimo
         nuevos += 1
         log(f"Sorteo {ultimo['numero']} agregado desde /ultimosorteo")
 
-    # 2) Backfill de historial viejo desde /sorteos (puede ir un poco atrás
-    #    del más reciente, pero para el historial no importa la demora).
     numeros_a_revisar = set()
     if listado_html:
         numeros_a_revisar.update(obtener_numeros_historicos(listado_html))
@@ -327,21 +300,38 @@ def main() -> None:
         data["proximo_sorteo"] = parsear_proximo_sorteo(home_html) or data.get("proximo_sorteo")
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
 
+    # --- Notificación push, con protección anti-duplicados ---
+    # En vez de notificar simplemente "si esta corrida agregó algo nuevo",
+    # comparamos contra un marcador PERSISTIDO en el propio JSON
+    # (ultimo_notificado). Esto evita mandar el mismo push dos veces aunque
+    # dos corridas del workflow se solapen en el tiempo (p.ej. cron-job.org
+    # y el respaldo de GitHub casi al mismo momento): la corrida que
+    # efectivamente commitea primero deja escrito el número ya notificado,
+    # así que ninguna otra corrida posterior lo vuelve a notificar.
+    ultimo_sorteo_actual = data["sorteos"][0]["numero"] if data["sorteos"] else None
+    ya_notificado = data.get("ultimo_notificado")
+    hay_que_notificar = (
+        ultimo_sorteo_actual is not None
+        and ultimo_sorteo_actual != ya_notificado
+        and (ya_notificado is None or ultimo_sorteo_actual > ya_notificado)
+    )
+
+    if hay_que_notificar:
+        data["ultimo_notificado"] = ultimo_sorteo_actual
+
     DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(DATA_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     log(f"Listo. {nuevos} sorteo(s) nuevo(s). Total guardados: {len(data['sorteos'])}")
 
-    # Avisarle al workflow de GitHub Actions si hay que disparar una notificación push.
-    # Solo notificamos el sorteo MÁS RECIENTE agregado en esta corrida (no todo el
-    # historial, para no mandar 20 pushes si es la primera vez que se llena la base).
     github_output = os.environ.get("GITHUB_OUTPUT")
-    if github_output and nuevos > 0:
-        ultimo_sorteo = data["sorteos"][0]["numero"] if data["sorteos"] else None
-        if ultimo_sorteo:
-            with open(github_output, "a", encoding="utf-8") as f:
-                f.write(f"nuevo_sorteo={ultimo_sorteo}\n")
+    if github_output and hay_que_notificar:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"nuevo_sorteo={ultimo_sorteo_actual}\n")
+        log(f"Marcado sorteo {ultimo_sorteo_actual} como notificado (antes: {ya_notificado})")
+    elif not hay_que_notificar and ultimo_sorteo_actual is not None:
+        log(f"Sorteo {ultimo_sorteo_actual} ya estaba notificado, no se repite el push")
 
 
 if __name__ == "__main__":
