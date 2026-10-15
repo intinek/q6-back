@@ -1,6 +1,109 @@
 {
   "sorteos": [
     {
+      "numero": 3417,
+      "fecha": "2026-10-14",
+      "fuente_url": "https://numerosganadores.com.ar/ultimosorteo",
+      "tradicional": [
+        1,
+        9,
+        23,
+        24,
+        32,
+        37
+      ],
+      "segunda": [
+        5,
+        8,
+        13,
+        23,
+        43,
+        44
+      ],
+      "revancha": [
+        4,
+        6,
+        10,
+        25,
+        30,
+        37
+      ],
+      "siempre_sale": [
+        1,
+        14,
+        18,
+        41,
+        43,
+        44
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 2469571272
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 18,
+            "monto": 2257006
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1350,
+            "monto": 9028
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 55,
+            "monto": 738656.51
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1580,
+            "monto": 7713.82
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3625515763
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 7,
+            "monto": 52059996
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 994,
+            "monto": 201207.24
+          }
+        ]
+      }
+    },
+    {
       "numero": 3416,
       "fecha": "2026-10-11",
       "fuente_url": "https://numerosganadores.com.ar/ultimosorteo",
@@ -2886,10 +2989,10 @@
     }
   ],
   "proximo_sorteo": {
-    "numero": 3417,
-    "fecha": "2026-10-14",
-    "pozo_estimado": 8000000000
+    "numero": 3418,
+    "fecha": "2026-10-18",
+    "pozo_estimado": 9100000000
   },
-  "last_updated": "2026-10-14T17:07:16.748098+00:00",
-  "ultimo_notificado": 3416
+  "last_updated": "2026-10-15T00:40:17.956374+00:00",
+  "ultimo_notificado": 3417
 }
