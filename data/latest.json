@@ -1,6 +1,109 @@
 {
   "sorteos": [
     {
+      "numero": 3428,
+      "fecha": "2026-11-22",
+      "fuente_url": "https://numerosganadores.com.ar/ultimosorteo",
+      "tradicional": [
+        3,
+        4,
+        10,
+        18,
+        20,
+        36
+      ],
+      "segunda": [
+        3,
+        16,
+        17,
+        19,
+        26,
+        37
+      ],
+      "revancha": [
+        5,
+        15,
+        18,
+        25,
+        41,
+        42
+      ],
+      "siempre_sale": [
+        7,
+        17,
+        22,
+        28,
+        31,
+        34
+      ],
+      "premios": {
+        "tradicional": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1219126180
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 54,
+            "monto": 1002611
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 2084,
+            "monto": 7793.81
+          }
+        ],
+        "segunda": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 1100000000
+          },
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 33,
+            "monto": 1640636
+          },
+          {
+            "aciertos": 4,
+            "vacante": false,
+            "ganadores": 1727,
+            "monto": 9404
+          }
+        ],
+        "revancha": [
+          {
+            "aciertos": 6,
+            "vacante": true,
+            "ganadores": null,
+            "monto": 3712789051
+          }
+        ],
+        "siempre_sale": [
+          {
+            "aciertos": 5,
+            "vacante": false,
+            "ganadores": 52,
+            "monto": 9341050.85
+          }
+        ],
+        "pozo_extra": [
+          {
+            "aciertos": 6,
+            "vacante": false,
+            "ganadores": 1099,
+            "monto": 181983
+          }
+        ]
+      }
+    },
+    {
       "numero": 3427,
       "fecha": "2026-11-18",
       "fuente_url": "https://numerosganadores.com.ar/ultimosorteo",
@@ -4019,10 +4122,10 @@
     }
   ],
   "proximo_sorteo": {
-    "numero": 3428,
-    "fecha": "2026-11-22",
-    "pozo_estimado": 6900000000
+    "numero": 3429,
+    "fecha": "2026-11-25",
+    "pozo_estimado": 7500000000
   },
-  "last_updated": "2026-11-22T19:32:13.290065+00:00",
-  "ultimo_notificado": 3427
+  "last_updated": "2026-11-23T00:40:17.032185+00:00",
+  "ultimo_notificado": 3428
 }
